@@ -1,8 +1,10 @@
 function [EPRaster,recordingType] = spikeVisualize(data)
 % function [EPRaster,recordingType] = spikeVisualize(data)
 % This function creates a plot of whole episode then an interactive trace by
-% trace figure. It calls the peakTimeDetection function to find spike peaks
-% and then plots the spikes on the raw data.
+% trace figure.  It calls the peakTimeDetection function to find spike 
+% peaks and then marks the spikes on the raw data.In trace by trace mode, 
+% you can toggle to discard mode by keyboard input. You can manually peak a
+% threshold by clicking a trace.
 % INPUT
 %  data = struct containing exported data
 % OUTPUT
