@@ -6,9 +6,12 @@ function rasterPlot(rasterDataName,varargin)
 % formated by MATLAB's default format. Each neuron is color coded. Attach
 % mode recordings are plotted first.
 % INPUT
-%  rasterDataName = When input 'rasterData' loads data from the workspace.
+%  rasterDataName = When input is rasterData loads data from the workspace.
 %      When input 'rasterData.mat' loads data from saved file
 % OPTIONAL INPUTS
+%  'orderOfEpisodes' = When it is not given, all of the episodes are drawn 
+%       starting from attach mode recordings. When a vector of episode 
+%       numbers are given, the figure is drawn by this order.
 %  'journalName' = the output figure is formated according to the given
 %       journal format
 %  'width' = width of the figure in cm. Overwrites the journal format
@@ -31,6 +34,13 @@ addParameter( p,'width',17.6, isValidScalarNum );
 addParameter( p,'height',7.4976, isValidScalarNum );
 addParameter( p,'fontName',defaultFontName,@(x) any(validatestring(x,listfonts)) );
 addParameter( p,'fontSize',defaultFontSize, isValidScalarNum );
+if strcmpi (rasterDataName,'rasterData.mat')% Loads rasterData file if the function is called for rasterData.mat. Otherwise, it can be called for a variable named rasterData
+    load('rasterData.mat','rasterData')
+    rasterData = rasterData(2:end);
+else
+    rasterData = rasterDataName(2:end);
+end
+addParameter( p,'orderOfEpisodes',0,@(x) isnumeric(x) && all(round(x)==x)  && length(unique(x)) <= length(rasterData) && length(x) == length(unique(x)))
 parse(p,varargin{:});
 
 if nargin > 1 && strcmpi( p.Results.journalName,'JNeurophys' )
@@ -51,15 +61,12 @@ elseif nargin > 1
     fontSize = p.Results.fontSize;
 else
     figure;% creates an unformated figure when the function is called without additional inputs
+    fontName = p.Results.fontName;
+    fontSize = p.Results.fontSize;
 end
 
 %%
-if strcmpi (rasterDataName,'rasterData.mat')% Loads rasterData file if the function is called for rasterData.mat. Otherwise, it can be called for a variable named rasterData
-    load('rasterData.mat','rasterData')
-    rasterData = rasterData(2:end);
-else
-    rasterData = rasterData(2:end);
-end
+
 randColorIdx = randperm(length(rasterData));
 randColors = hsv(length(rasterData));
 randColors = randColors(randColorIdx,:);% hsv colors are shuffled to increase the contrast between neuron colors
@@ -71,7 +78,12 @@ wholeIdx = find(wholeIdx == 1);
 
 hold on
 yAxNo = 0;
-for i = [attachIdx wholeIdx]%attach mode recordings are drawn first
+if p.Results.orderOfEpisodes == 0
+    o = [attachIdx wholeIdx];%attach mode recordings are drawn first
+else
+    o = p.Results.orderOfepisodes;
+end
+for i = o
     for ii = 1: length(rasterData(i).EpRasterData)
         if ~isempty(rasterData(i).EpRasterData(ii).spikeTime)
             for iii = 1:length(rasterData(i).EpRasterData(ii).spikeTime)
