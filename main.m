@@ -79,8 +79,6 @@ raster = questdlg('\fontsize{15} Do you want to see raster plot?',...
     'Raster Plot?',...
     'Yes','No',opts);
 if strcmp(raster,'Yes')
-    rasterPlot;
+    rasterPlot(rasterData,'journalName','JNeurophys')
 end
-
-
 
